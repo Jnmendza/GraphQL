@@ -19,10 +19,33 @@ const users = [{
     age: 33
 }]
 
+// Demo Posts data
+const posts = [{
+    id: '321',
+    title: 'GraphQl',
+    body: 'GraphQL body goes here',
+    published: true,
+    author: '1'
+},
+{
+    id: '322',
+    title: 'Fundamentals',
+    body: 'This is the body for fundamentals',
+    published: false,
+    author: '1'
+},
+{
+    id: '323',
+    title: 'Basics',
+    body: 'This is the body for basics',
+    published: true,
+    author: '2'
+},]
 
 const typeDefs = `
     type Query {
         users(query: String): [User!]!
+        posts(query: String): [Post!]!
         me: User!
         post: Post!
     }
@@ -39,6 +62,7 @@ const typeDefs = `
         title: String!
         body: String!
         published: Boolean!
+        author: User!
     }
 `
 
@@ -54,6 +78,18 @@ const resolvers = {
                 return user.name.toLowerCase().includes(args.query.toLowerCase())
             })
         },
+        posts(parent, args, ctx, info) {
+            if (!args.query) {
+                return posts
+            }
+
+            return posts.filter((post) => {
+                const isTitleMatch = post.title.toLowerCase().includes(args.query.toLowerCase())
+                const isBodyMatch = post.body.toLowerCase().includes(args.query.toLowerCase())
+
+                return isTitleMatch || isBodyMatch
+            })
+        },
         me() {
             return{
                 id: '123098',
@@ -62,13 +98,20 @@ const resolvers = {
                 age: 33
             }
         },
-        post() {
-            return{
-                id: '321098',
-                title: 'New Title of Book',
-                body: 'New body text',
+        post(parent, args, ctx, info) {
+            return {
+                id: "123098",
+                title: "Title",
+                body: "Some Body",
                 published: true
             }
+        }
+    },
+    Post: {
+        author(parent, args, ctx, info){
+            return users.find((user) => {
+                return user.id === parent.author
+            })
         }
     }
 }
