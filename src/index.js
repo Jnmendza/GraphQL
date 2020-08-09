@@ -81,9 +81,29 @@ const typeDefs = `
     }
 
     type Mutation {
-        createUser(name: String!, email: String!, age: Int): User!
-        createPost(title: String!, body: String!, published: Boolean!, author: ID!): Post!
-        createComment(text: String!, author: ID!, post: ID!): Comment!
+        createUser(data: createUserInput!): User!
+        deleteUser(id: ID!): User!
+        createPost(posts: createPostInput!): Post!
+        createComment(comments: createCommentInput): Comment!
+    }
+
+    input createUserInput {
+        name: String!
+        email: String!
+        age: Int
+    }
+
+    input createPostInput {
+        title: String!, 
+        body: String!, 
+        published: Boolean!, 
+        author: ID!
+    }
+
+    input createCommentInput {
+        text: String!, 
+        author: ID!, 
+        post: ID!
     }
 
     type User {
@@ -159,7 +179,7 @@ const resolvers = {
     Mutation: {
         createUser(parent, args, ctx, info) {
             const emailTaken = users.some((user) => {
-                return user.email === args.email
+                return user.email === args.data.email
             })
 
             if (emailTaken) {
@@ -168,17 +188,28 @@ const resolvers = {
             
             const user = {
                 id: uuid(),
-                ...args
+                ...args.data
             }
 
             users.push(user)
 
             return user
         },
+        deleteUser(parent, args, ctx, info) {
+            const userIndex = users.findIndex((user) => user.id === args.id)
+
+            if (userIndex === -1) {
+                throw new Error("user not found")
+            }
+
+            const deletedUsers = users.splice(userIndex, 1)
+
+            
+        },
         createPost(parent, args, ctx, info) {
             // make sure the author id given matches the id for one of the users
             const userExist = users.some((user) => {
-                return user.id === args.author
+                return user.id === args.posts.author
             })
 
             if (!userExist) {
@@ -187,7 +218,7 @@ const resolvers = {
 
             const post = {
                 id: uuid(),
-                ...args
+                ...args.posts
             }
 
             posts.push(post)
@@ -197,11 +228,11 @@ const resolvers = {
         },
         createComment(parent, args, ctx, info) {
             const userExist = users.some((user) => {
-                return user.id === args.author
+                return user.id === args.comments.author
             })
 
             const postExist = posts.some((post) => {
-                return post.id === args.post && post.published
+                return post.id === args.comments.post && post.published
             })
 
             if(!userExist || !postExist) {
@@ -210,7 +241,7 @@ const resolvers = {
 
             const comment = {
                 id: uuid(),
-                ...args
+                ...args.comments
             }
 
             comments.push(comment)
