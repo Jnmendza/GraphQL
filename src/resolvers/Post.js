@@ -1,7 +1,7 @@
 const Post = {
-    author(parent, args, { db }, info){
+    author(parent, args, { db }, info) {
         return db.users.find((user) => {
-            return db.user.id === parent.author
+            return user.id === parent.author
         })
     },
     comments(parent, args, { db }, info) {

@@ -1,9 +1,9 @@
 const Query = {
     users(parent, args, { db }, info) {
-        if (!args.query){
+        if (!args.query) {
             return db.users
-        } 
-        
+        }
+
         return db.users.filter((user) => {
             return user.name.toLowerCase().includes(args.query.toLowerCase())
         })
@@ -16,27 +16,25 @@ const Query = {
         return db.posts.filter((post) => {
             const isTitleMatch = post.title.toLowerCase().includes(args.query.toLowerCase())
             const isBodyMatch = post.body.toLowerCase().includes(args.query.toLowerCase())
-
             return isTitleMatch || isBodyMatch
         })
     },
-    comments(parent, args, { bd }, info) {
+    comments(parent, args, { db }, info) {
         return db.comments
     },
     me() {
-        return{
+        return {
             id: '123098',
-            name: 'Jon',
-            email: 'jon@test.com',
-            age: 33
+            name: 'Mike',
+            email: 'mike@example.com'
         }
     },
-    post(parent, args, ctx, info) {
+    post() {
         return {
-            id: "123098",
-            title: "Title",
-            body: "Some Body",
-            published: true
+            id: '092',
+            title: 'GraphQL 101',
+            body: '',
+            published: false
         }
     }
 }
